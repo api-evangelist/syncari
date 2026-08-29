@@ -1,0 +1,76 @@
+generated: '2026-08-29'
+method: searched
+source: https://syncari.com/product/security/
+name: Syncari trust and compliance posture
+description: >-
+  Syncari has no dedicated trust-center subdomain (trust.syncari.com and security.syncari.com do not resolve) and
+  no machine-readable compliance surface. It publishes two prose security pages that name real certifications and
+  practices. Everything below is quoted or paraphrased from those two pages; nothing is inferred.
+pages:
+- url: https://syncari.com/product/security/
+  http_status: 200
+  title: Security (product page)
+- url: https://syncari.com/security-overview/
+  http_status: 200
+  title: Security Overview
+certifications:
+- name: SOC 2 Type II
+  status: claimed
+  cadence: audited annually
+  evidence: '"SOC 2 Type II ... audited annually" - https://syncari.com/product/security/'
+  report_access: not published; no request form or trust portal found
+- name: HIPAA
+  status: claimed
+  form: Business Associate Agreement available on request
+  evidence: '"Syncari is HIPAA compliant and can provide HIPAA Business Partner Agreements"'
+- name: GDPR
+  status: claimed
+  evidence: '"Syncari supports Privacy Shield, SCCs, CCPA and GDPR compliance"'
+- name: CCPA
+  status: claimed
+  evidence: same sentence as GDPR
+- name: Standard Contractual Clauses (SCCs)
+  status: claimed
+  evidence: same sentence as GDPR
+- name: EU-US Privacy Shield
+  status: claimed
+  evidence: same sentence as GDPR
+  note: >-
+    Privacy Shield was invalidated by Schrems II in 2020 and superseded by the EU-US Data Privacy Framework. Its
+    continued appearance on the page is a currency problem worth raising with the provider, not a certification.
+- name: GLBA
+  status: claimed
+  evidence: '"complies with Gramm-Leach-Bliley Act (GLBA) of 1999 practices for securing infrastructure and applications"'
+practices:
+- practice: Third-party penetration testing
+  detail: >-
+    "the team performs third-party penetration tests annually that include external break-in, and blackbox and
+    whitebox testing of our environments"
+- practice: Vulnerability scanning
+  detail: Intensive automated and manual third-party efforts
+- practice: Encryption
+  detail: Encryption for data in transit and at rest; PII data masking and encryption
+- practice: Tenant isolation
+  detail: Logically isolates each customer's data from that of other customers
+- practice: Data use
+  detail: Customer data is not scanned for advertisements and not sold to third parties
+- practice: Access control
+  detail: Least privilege and strong authentication; Attribute Based Access Control (ABAC) is a documented product feature
+hosting:
+  primary: Google Cloud Platform
+  private_deployment:
+  - cloud: GCP
+    model: Customer's own GCP VPC, enterprise option, announced June 2026
+    docs: https://support.syncari.com/hc/en-us/sections/50402610626964-GCP-Private
+  - cloud: AWS
+    model: Public and private deployment documentation section exists
+    docs: https://support.syncari.com/hc/en-us/sections/51821808544788-AWS-Public-and-Private
+  network:
+    ip_allowlist: https://support.syncari.com/hc/en-us/articles/360061186972-Allowlist-IP
+    tls_requirements: https://support.syncari.com/hc/en-us/articles/48005901313300-SSL-TLS-Connection-Requirements-for-Syncari-Database-Synapses
+gaps:
+- No /.well-known/security.txt on any Syncari host (all probed 404 or 401).
+- No vulnerability disclosure policy, security contact address, or bug bounty programme found; hackerone.com/syncari
+  and bugcrowd.com/syncari both return 404.
+- No trust portal, sub-processor list, or self-serve report request.
+- Certifications are prose claims on a marketing page; there is no machine-readable attestation.

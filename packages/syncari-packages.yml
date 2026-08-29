@@ -1,0 +1,59 @@
+generated: '2026-08-29'
+method: searched
+source: https://pypi.org/pypi/syncari-sdk/json
+name: Syncari client libraries and SDKs
+description: >-
+  Syncari publishes one first-party client library: the Python Synapse Development Kit, used to build custom
+  Synapse connectors that Syncari's platform invokes (synapse_info, test, describe, read, CRUD, webhook and
+  getHeaders methods, plus a bundled SyncariRestClient with retry/backoff). There is no first-party SDK for the
+  Syncari Embed REST API in any other language, and no public Syncari GitHub organisation
+  (https://api.github.com/orgs/syncari returned HTTP 404 on 2026-08-29).
+registries_checked:
+- registry: pypi
+  result: hit
+- registry: npm
+  query: syncari
+  result: no first-party package (registry search returned zero objects)
+- registry: rubygems
+  result: not-found
+- registry: crates.io
+  result: not-found
+- registry: nuget
+  result: not-found
+- registry: maven-central
+  result: not-found
+- registry: pkg.go.dev
+  result: not-found
+- registry: github
+  result: no org - https://api.github.com/orgs/syncari => 404
+packages:
+- name: syncari-sdk
+  language: python
+  registry: pypi
+  url: https://pypi.org/project/syncari-sdk/
+  official: true
+  official_evidence: 'PyPI author "Syncari", author_email dev@syncari.com'
+  version: 1.3.23
+  published: '2026-07-31'
+  first_published: '2022-03-04'
+  release_count: 60
+  requires_python: '>=3.7.0'
+  license: TBD
+  summary: Syncari Synapse Development Kit
+  purpose: >-
+    Build a custom Synapse (connector) in Python that Syncari calls. Provides the Synapse base class and its
+    lifecycle methods, the Record/Result/Connection/AuthConfig/Attribute/Entity models, helper utilities
+    (epoch-millis conversion, flatten/unflatten, CSV to records, build_record) and SyncariRestClient with
+    automatic retries on 429/500/502/503/504.
+  docs: https://support.syncari.com/hc/en-us/sections/4578749288980-SDK-Synapse
+  source_code: null
+  source_code_note: >-
+    No public source repository is linked from the PyPI metadata (project_urls is null) and no Syncari GitHub
+    organisation exists, so the SDK ships as a wheel/sdist only.
+  currency: >-
+    Current. Latest release 2026-07-31 is one month old at time of profiling, and the release cadence over 60
+    versions since 2022-03-04 is steady - this is a maintained first-party library, not an abandoned one.
+counts:
+  total: 1
+  official: 1
+  community: 0

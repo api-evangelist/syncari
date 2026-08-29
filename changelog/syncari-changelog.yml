@@ -1,0 +1,69 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/sections/46253295331092-2026-Release-Notes
+name: Syncari release notes
+description: >-
+  Syncari publishes a dated release-notes article every month in its Zendesk help centre, grouped into one section
+  per calendar year going back to 2021. Each entry is structured as New Features, Enhancements, and Resolved Issues
+  & Minor Updates. Entries below are the recent window (2026); older years are listed as sections only.
+scheme: calendar-month
+current_version: 'Release Notes June 2026'
+format: html-articles
+feed: none
+sections:
+- year: '2026'
+  url: https://support.syncari.com/hc/en-us/sections/46253295331092-2026-Release-Notes
+- year: '2025'
+  url: https://support.syncari.com/hc/en-us/sections/34437298427540-2025-Release-Notes
+- year: '2024'
+  url: https://support.syncari.com/hc/en-us/sections/23540835462036-2024-Release-Notes
+- year: '2023'
+  url: https://support.syncari.com/hc/en-us/sections/13168934458900-2023-Release-Notes
+- year: '2022'
+  url: https://support.syncari.com/hc/en-us/sections/4408989888020-2022-Release-Notes
+- year: '2021'
+  url: https://support.syncari.com/hc/en-us/sections/11208998763540-2021-Release-Notes
+entries:
+- version: 'June 2026'
+  date: '2026-06-26'
+  url: https://support.syncari.com/hc/en-us/articles/50707065832852-Release-Notes-June-2026
+  breaking: []
+  additions:
+  - Fuzzy Matching GA - approximate matching with a match score in Dedupe, Lookup and Data Studio filters
+  - Private GCP deployment inside a customer's own GCP VPC (enterprise option)
+  - Import Data Model - bulk import entities, fields and relationships from JSON or CSV into Schema Studio
+  - Dataset support in QuickStart, carrying Basic and SQL datasets across instances
+  - Watermark support for datasets, enabling incremental syncs (falls back to syncariDefinedUpdatedAt)
+  - 'API: Role API for programmatic custom-role management and role assignment'
+  - 'API: activate / deactivate user endpoints'
+  api_impact:
+  - New /api/v1/roles and /api/v1/users/{userId}/roles/{roleId} endpoints
+  - New /api/v1/users/{id}/activate and /api/v1/users/{id}/deactivate endpoints
+  - Get Entity Data API gained sort and direction parameters
+- version: 'May 2026'
+  date: '2026-05-29'
+  url: https://support.syncari.com/hc/en-us/articles/49710843662996-Release-Notes-May-2026
+  breaking: []
+  additions:
+  - Pipeline AI Assistant - conversational, bounded pipeline authoring in Sync Studio using SyncAI
+  - SAP SuccessFactors LMS Synapse
+  - Import Data Model
+  - 'MCP Tools: the MCP server can now list all datasets in an instance and analyse data with queries'
+  - AI Token Usage reporting across prompts, context and responses
+  api_impact:
+  - MCP server tool surface expanded (dataset listing and query)
+- version: 'April 2026'
+  date: '2026-04'
+  url: https://support.syncari.com/hc/en-us/articles/48787088834580-Release-Notes-April-2026
+- version: 'March 2026'
+  date: '2026-03'
+  url: https://support.syncari.com/hc/en-us/articles/47779322241428-Release-Notes-March-2026
+- version: 'February 2026'
+  date: '2026-02'
+  url: https://support.syncari.com/hc/en-us/articles/46843749567892-Release-Notes-February-2026
+- version: 'January 2026'
+  date: '2026-01'
+  url: https://support.syncari.com/hc/en-us/articles/46253297369364-Release-Notes-January-2026
+notes: >-
+  Release notes are product-wide, not API-specific: API changes appear inline among UI and connector changes and
+  are not separately versioned or tagged. There is no machine-readable changelog feed.

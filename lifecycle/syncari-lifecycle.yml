@@ -1,0 +1,72 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/articles/38548467297940-Syncari-Service-Health-Check
+name: Syncari API lifecycle
+description: >-
+  Versioning, availability, health and change-communication posture for the Syncari Embed API and MCP server.
+  Syncari ships monthly and communicates every release in a dated release-notes article, but publishes no
+  deprecation policy, no Sunset/Deprecation headers, and no SLA document.
+versioning:
+  scheme: URI path
+  current: v1
+  base: https://api.syncari.com/api/v1
+  since: 'v1 has been the only documented version since the API reference was first published (2021)'
+  media_type_versioning: false
+  header_versioning: false
+  version_negotiation: none
+  breaking_change_policy: not published
+status_page:
+  url: https://status.syncari.com/
+  http_status: 200
+  method: probed
+  services:
+  - name: Syncari App
+    health_endpoint: https://app.syncari.com/arcade/health
+  - name: Syncari APIs
+    health_endpoint: https://api.syncari.com/health
+  - name: Syncari Data Sync
+    health_endpoint: https://api.syncari.com/health/sync
+  states: [Healthy, Unhealthy]
+  machine_readable: >-
+    Three GET health endpoints are published for plugging into external monitoring. Syncari states the ping
+    interval must be at least 30 minutes per endpoint.
+  docs: https://support.syncari.com/hc/en-us/articles/38548467297940-Syncari-Service-Health-Check
+deprecation:
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  evidence: >-
+    Zero occurrences of "sunset" and only three incidental occurrences of "deprecat" across all 425 help-centre
+    articles, none of them an API deprecation policy. Deprecations are announced, when they are announced, inside
+    the monthly release notes prose.
+  observed_examples:
+  - 'Loop Function article notes a deprecated behaviour'
+  - 'Snowflake Setup notes a deprecated authentication path'
+  - 'SSL/TLS Connection Requirements article covers retirement of older TLS on database Synapses'
+sla:
+  published: false
+  note: >-
+    No public SLA, uptime commitment or support-response matrix. "Leveraging Technical Support" describes the
+    support process without numeric targets.
+  support_docs: https://support.syncari.com/hc/en-us/articles/12132891305620-Leveraging-Technical-Support
+release_cadence:
+  frequency: monthly
+  channel: Zendesk help-centre release-notes articles, one per month
+  history_from: '2021'
+  latest_seen: '2026-06'
+  index: changelog/syncari-changelog.yml
+support:
+  portal: https://support.syncari.com/
+  request_form: https://support.syncari.com/hc/en-us/requests/new
+  email: support@syncari.com
+  email_evidence: >-
+    "reach out to us at support@syncari.com" - Release Notes June 2026, GCP private deployment section.
+  crawler_note: >-
+    support.syncari.com returns HTTP 403 to non-browser clients (Zendesk bot challenge). The help centre
+    demonstrably exists - its public Zendesk Help Center API served all 425 articles on 2026-08-29 - so these
+    pointers are live, not dead.
+gaps:
+- No deprecation or sunset policy, and no Deprecation/Sunset response headers.
+- No SLA or uptime target.
+- No RSS/Atom or JSON feed for release notes; the changelog is HTML articles only.

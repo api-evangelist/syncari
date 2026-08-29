@@ -1,0 +1,151 @@
+generated: '2026-08-29'
+method: searched
+source: >-
+  https://syncari.com/product/security/, https://mcp.syncari.com/.well-known/oauth-authorization-server,
+  https://support.syncari.com/hc/en-us/sections/18707940523028-API-Reference
+name: Syncari standards and compliance conformance
+description: >-
+  Cross-cutting standards assertions for Syncari, split between what was probed live on the MCP host (which is
+  genuinely standards-conformant) and what is only claimed in prose on the marketing site. The REST API side is
+  where conformance is weakest: no OpenAPI, no RFC 9457 problem details, no RFC 6585/draft-ietf rate-limit headers,
+  and a bespoke response envelope.
+conformance:
+- id: oauth2
+  name: OAuth 2.0 (RFC 6749)
+  conforms: true
+  evidence: >-
+    Both surfaces use OAuth 2.0. Embed API: POST https://api.syncari.com/api/v1/oauth/token with
+    grant_type=client_credentials, returning access_token/refresh_token/token_type=Bearer/expires_in=10800.
+    MCP: authorization_code with refresh_token.
+  source: https://support.syncari.com/hc/en-us/articles/18707594686100-Authenticating-with-Syncari-Embed-APIs
+- id: rfc8414
+  name: OAuth 2.0 Authorization Server Metadata
+  conforms: true
+  method: probed
+  evidence: >-
+    https://mcp.syncari.com/.well-known/oauth-authorization-server returns HTTP 200 application/json with issuer,
+    authorization_endpoint, token_endpoint, registration_endpoint, response_types_supported, grant_types_supported,
+    token_endpoint_auth_methods_supported and code_challenge_methods_supported.
+- id: rfc9728
+  name: OAuth 2.0 Protected Resource Metadata
+  conforms: true
+  method: probed
+  evidence: >-
+    https://mcp.syncari.com/.well-known/oauth-protected-resource returns HTTP 200 with resource,
+    authorization_servers, scopes_supported and bearer_methods_supported; and the MCP 401 challenge carries
+    WWW-Authenticate with a resource_metadata parameter pointing at it.
+  deviation: scopes_supported is an empty array, so least-privilege reasoning is not possible from metadata alone.
+- id: rfc7636
+  name: PKCE
+  conforms: true
+  method: probed
+  evidence: 'code_challenge_methods_supported: ["plain", "S256"]'
+  deviation: '"plain" is still advertised alongside S256; S256-only is the current recommendation.'
+- id: rfc7591
+  name: OAuth 2.0 Dynamic Client Registration
+  conforms: true
+  method: probed
+  evidence: 'registration_endpoint: https://app.syncari.com/arcade/api/v1/oauth2/register'
+- id: mcp
+  name: Model Context Protocol
+  conforms: true
+  method: probed
+  evidence: >-
+    Hosted remote server at https://mcp.syncari.com/mcp answers JSON-RPC over HTTP and implements the MCP
+    authorization spec (401 + RFC 9728 resource_metadata). Documented for Claude and ChatGPT custom connectors.
+  deviation: tools/list is auth-gated, so the tool schemas are not publicly discoverable.
+- id: openid-connect
+  name: OpenID Connect Discovery
+  conforms: false
+  evidence: mcp.syncari.com/.well-known/openid-configuration returns 404; no OIDC discovery document on any host.
+- id: openapi
+  name: OpenAPI
+  conforms: false
+  evidence: >-
+    No OpenAPI/Swagger document served from api.syncari.com (every path returns 401), www.syncari.com,
+    docs.syncari.com (301 to support) or support.syncari.com. The API reference is prose plus curl samples in a
+    Zendesk help centre.
+- id: rfc9457
+  name: Problem Details for HTTP APIs
+  conforms: false
+  evidence: >-
+    Responses use a bespoke envelope {success, requestId, timestamp, cursorToken, result}. No
+    application/problem+json media type appears anywhere in the API reference.
+- id: pagination
+  name: Cursor pagination
+  conforms: true
+  evidence: >-
+    List responses return a top-level cursorToken; requests accept cursorToken and limit query parameters. Applied
+    consistently across errors, transactions, entity data, functions and other list endpoints.
+- id: idempotency
+  name: Idempotency keys
+  conforms: false
+  evidence: >-
+    Every documented endpoint accepts an optional clientRequestId header, but Syncari's own parameter description
+    reads "Client side request id to be used for idempotency in the future" - it is reserved, not implemented.
+- id: rate-limit-headers
+  name: RateLimit header fields
+  conforms: false
+  evidence: >-
+    No X-RateLimit-*, RateLimit-* or Retry-After header is documented anywhere in the help centre (0 occurrences
+    across all 425 articles). 429 appears only as a status the SDK's REST client retries on.
+- id: webhooks
+  name: Outbound webhooks
+  conforms: true
+  evidence: >-
+    Settings > Notifications > Webhook configures outbound HTTP notifications (POST/PUT/PATCH, custom headers) for
+    Pipeline, Synapse and Sync errors, real-time or digest.
+  deviation: No signing, no replay protection and no published payload schema are documented.
+- id: soc2
+  name: SOC 2 Type II
+  conforms: claimed
+  evidence: '"SOC 2 Type II ... audited annually" on https://syncari.com/product/security/'
+- id: hipaa
+  name: HIPAA
+  conforms: claimed
+  evidence: HIPAA compliant, Business Associate Agreements available.
+- id: gdpr
+  name: GDPR
+  conforms: claimed
+  evidence: '"Syncari supports Privacy Shield, SCCs, CCPA and GDPR compliance"'
+- id: ccpa
+  name: CCPA
+  conforms: claimed
+  evidence: same statement as GDPR
+- id: glba
+  name: Gramm-Leach-Bliley Act
+  conforms: claimed
+  evidence: '"complies with Gramm-Leach-Bliley Act (GLBA) of 1999 practices"'
+- id: iso27001
+  name: ISO/IEC 27001
+  conforms: false
+  evidence: Not claimed on either published security page.
+- id: fedramp
+  name: FedRAMP
+  conforms: false
+  evidence: Not claimed.
+- id: pci-dss
+  name: PCI DSS
+  conforms: false
+  evidence: Not claimed.
+domain_standard:
+  market: Master data management / data integration / iPaaS
+  searched:
+  - scim
+  - odata
+  - json-api
+  - graphql
+  - odbc-jdbc
+  - open-data-protocol
+  finding: >-
+    None declared. Syncari's contract declares no domain data-interchange standard for the MDM market: no SCIM
+    schema URNs, no OData $metadata surface, no CDM/Open Data Initiative mapping. Its unified data model is
+    proprietary (Syncari entities and attributes, with per-Synapse mapping). This is REWARD-ONLY and the MDM
+    segment has no single dominant wire standard, so no penalty is implied - it is recorded so a later pass does
+    not re-probe.
+  conforms: false
+summary:
+  probed_true: 5
+  documented_true: 2
+  documented_false: 6
+  claimed_compliance: 5

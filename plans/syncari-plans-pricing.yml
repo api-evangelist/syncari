@@ -1,0 +1,46 @@
+generated: '2026-08-29'
+method: searched
+source: https://syncari.com/pricing/
+name: Syncari plans and pricing
+description: >-
+  Syncari publishes a pricing PAGE but no prices. The page is headed "Simple, Predictable Pricing" and "One Plan,
+  Infinite Possibilities", lists what the single plan includes, and ends in a "Let's Talk" contact button. No
+  amount, currency, billing period, seat count, connector count, record volume or overage rate is stated anywhere,
+  and there is no machine-readable pricing or catalogue endpoint. Recorded as an honest zero.
+pricing_url: https://syncari.com/pricing/
+http_status: 200
+checked: '2026-08-29'
+model: contact-sales
+plan_count: 0
+plans: []
+published_structure:
+  headline: 'Simple, Predictable Pricing - One Plan, Infinite Possibilities'
+  single_plan: true
+  included_dimensions_named_without_numbers:
+  - seats
+  - connectors
+  - pipelines
+  - workflows
+  - BI dashboards
+  - entity resolution
+  - data integration
+  - support services
+  cta: "Let's Talk"
+free_tier: false
+trial:
+  offered: true
+  form: 'Request a Trial Subscription - https://syncari.com/trial/'
+  self_serve: false
+  note: The trial is a request form, not a self-serve signup. No credit-card-free instant provisioning is documented.
+enterprise_options_priced_separately:
+- Private GCP VPC deployment (enterprise option, "reach out to us at support@syncari.com")
+- AWS public and private deployment
+api_pricing:
+  metered: unknown
+  note: >-
+    Nothing states whether Embed API calls, MCP usage or AI token usage are metered or bundled. An "AI Token Usage"
+    reporting feature shipped in May 2026, which implies AI consumption is at least measured, but no rate card
+    exists.
+gap: >-
+  A buyer or an agent cannot determine cost, quota or overage for the Syncari API from anything Syncari publishes.
+  plan_count is 0 because there are zero priced plans, not because the page is missing.

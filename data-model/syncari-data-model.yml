@@ -1,0 +1,240 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/sections/18707940523028-API-Reference
+name: Syncari Embed API data model
+description: >-
+  Entity-relationship graph for the Syncari Embed API, read from Syncari's 15 API-reference resource articles, the
+  "Syncari Operations vs Syncari Api Mapping" provisioning walkthrough and the Synapse SDK Models Reference. There
+  is no OpenAPI to derive $ref links from, so every entity and relationship below is grounded in a documented
+  endpoint path, a documented request/response sample, or a published SDK class - not inferred from naming.
+derivation:
+  from_openapi: false
+  reason: Syncari publishes no machine-readable contract; see conformance/syncari-conformance.yml.
+  from:
+  - documented endpoint paths under https://api.syncari.com/api/v1
+  - published request/response samples in the API reference articles
+  - the Synapse SDK Models Reference page (Python classes)
+id_format:
+  style: 24-character lowercase hex (MongoDB ObjectId shape)
+  examples: ['6196b0e2a5adb2000196f4b5', '627b96995bd81012af9b9cd9', '62e22c26a8ccd6ac1c2e97c3']
+  prefixed: false
+  note: >-
+    IDs carry no type prefix, so an id alone does not identify which entity it belongs to - a real consideration
+    for an agent holding several ids at once. A June 2026 enhancement added a "Validate syncari id is hex" check.
+  validation: 'The Role API sample uses the same hex shape (64f1a2b3c4d5e6f7a8b9c0d2).'
+tenancy:
+  root: Subscription
+  scope_header: syncariId
+  note: >-
+    Almost every call carries a syncariId header naming the Instance it runs against. One Org Admin API user can
+    address every instance in the subscription; an Instance Admin API user is bound to one.
+entities:
+- name: Subscription
+  endpoint: /api/v1/subscription
+  docs: https://support.syncari.com/hc/en-us/articles/18708687486868-Subscription
+  description: The customer's Syncari account. Top of the containment hierarchy.
+- name: Instance
+  endpoint: /api/v1/instances
+  docs: https://support.syncari.com/hc/en-us/articles/26063037517844-Instances
+  description: >-
+    An isolated Syncari tenant. Created first when onboarding a customer; its id becomes the syncariId used by
+    every subsequent call. Creating an instance requires an Org Admin API user.
+  operations: [create, list]
+- name: Synapse
+  endpoint: /api/v1/synapses
+  docs: https://support.syncari.com/hc/en-us/articles/18713827669268-Synapse
+  description: >-
+    A connection to an external system (Salesforce, HubSpot, Snowflake, a custom SDK Synapse...). Carries a
+    configuration object holding authConfig-style credentials (masked as ***** in responses), a status
+    (NEW/ACTIVE/INACTIVE/ERROR) and a refreshSchemaStatus.
+  operations: [list, create, get, update, delete, test, activate, deactivate, refreshSchema, describe]
+  lifecycle: create -> test -> activate
+- name: Entity
+  endpoint: /api/v1/entities
+  docs: https://support.syncari.com/hc/en-us/articles/18713929133588-Schema
+  description: >-
+    A unified object in the Syncari data model (the MDM "golden record" type). Draft/publish lifecycle; owns
+    Attributes. Bulk-importable from JSON or CSV since June 2026.
+  operations: [list, create, get, update, createDraft, publish, delete]
+- name: Attribute
+  endpoint: /api/v1/entities/{entityId}/fields
+  docs: https://support.syncari.com/hc/en-us/articles/18713929133588-Schema
+  description: >-
+    A field on an Entity. SDK class Attribute carries apiName, displayName, dataType, custom, defaultValue,
+    nillable, initializable, updateable, createOnly, calculated, unique. Each Entity needs one isIdField and one
+    isWatermarkField attribute.
+  operations: [list, create, get, update, delete, batch]
+  data_types: [boolean, decimal, double, reference, picklist, string, datetime, timestamp, integer, date, object, child, password, complex]
+- name: EntityData
+  endpoint: /api/v1/entities/{entityId}/data
+  docs: https://support.syncari.com/hc/en-us/articles/18713933895060-Entity-Data
+  description: The records themselves. Also /count. Gained sort and direction parameters in June 2026.
+  operations: [read, count, create, update, delete]
+- name: Pipeline
+  endpoint: /api/v1/pipelines
+  docs: https://support.syncari.com/hc/en-us/articles/18713807179924-Entity-Pipeline
+  description: >-
+    An entity-level sync pipeline: a graph of nodes moving records between a Synapse and a Syncari Entity. Draft,
+    validate, test, publish, pause, resume, resync.
+  operations: [list, create, get, update, delete, createDraft, validate, test, publish, pause, resume, resync]
+- name: FieldPipeline
+  endpoint: /api/v1/pipelines/{pipelineId}/fieldPipelines
+  docs: https://support.syncari.com/hc/en-us/articles/18778849055764-Field-Pipeline
+  description: An attribute-level pipeline nested under an entity Pipeline, mapping and transforming one field.
+  operations: [list, create, get, update, delete, validate]
+- name: PipelineFunction
+  endpoint: /api/v1/pipeline/functions
+  docs: https://support.syncari.com/hc/en-us/articles/18713807179924-Entity-Pipeline
+  description: >-
+    Catalogue of transformation functions available to pipeline nodes, filterable by scope=ENTITY or ATTRIBUTE.
+    Each carries apiName, displayName, helpSummary, outputType, scope, type and a configuration schema.
+- name: PipelineAction
+  endpoint: /api/v1/pipeline/actions
+  description: Catalogue of standard and custom actions a pipeline node can invoke.
+- name: QuickStart
+  endpoint: /api/v1/quickstart
+  docs: https://support.syncari.com/hc/en-us/articles/18713814850068-Quick-Start
+  description: >-
+    A reusable template bundling schema, pipelines and transformations. Installing one provisions all the
+    pipelines it contains in a target instance; since June 2026 it also carries Basic and SQL datasets.
+  operations: [list, install, get install status, run]
+- name: ReferenceDataset
+  endpoint: /api/v1/referencedata
+  docs: https://support.syncari.com/hc/en-us/articles/18713969494420-Reference-Dataset
+  description: Lookup/reference data tables with items, used by pipeline lookups.
+  operations: [list, create, get, update, delete, list items]
+- name: Dataset
+  endpoint: /api/v1/datasets
+  docs: https://support.syncari.com/hc/en-us/articles/29245304295700-Insights
+  description: >-
+    Insights datasets (Basic and SQL) used for analytics and as pipeline lookup sources. Supports watermark-based
+    incremental sync (falls back to a synthetic syncariDefinedUpdatedAt column).
+  operations: [list, run]
+- name: Transaction
+  endpoint: /api/v1/transactions
+  docs: https://support.syncari.com/hc/en-us/articles/18713918388628-Transaction
+  description: The sync transaction log, time-range queried; /transactions/kpis returns aggregate counters.
+  operations: [list, kpis]
+- name: Job
+  endpoint: /api/v1/jobs/{jobId}
+  docs: https://support.syncari.com/hc/en-us/articles/18713706550164-Job
+  description: Asynchronous job handle for long-running operations.
+  operations: [get]
+- name: Error
+  endpoint: /api/v1/errors
+  docs: https://support.syncari.com/hc/en-us/articles/18713938378004-Error
+  description: Sync and synapse error records. See errors/syncari-problem-types.yml.
+  operations: [list]
+- name: User
+  endpoint: /api/v1/users
+  docs: https://support.syncari.com/hc/en-us/articles/18713938936340-User
+  description: Syncari users, including API-access users. Activate/deactivate added June 2026.
+  operations: [list, create, get, update, delete, activate, deactivate, list roles, assign role, remove role]
+- name: Role
+  endpoint: /api/v1/roles
+  docs: https://support.syncari.com/hc/en-us/articles/50465652460820-Role
+  description: Custom roles and role assignment. Added June 2026.
+  operations: [list, create, get, update, delete]
+relationships:
+- from: Subscription
+  to: Instance
+  kind: has_many
+  via: subscription scope
+- from: Instance
+  to: Synapse
+  kind: has_many
+  via: syncariId header
+- from: Instance
+  to: Entity
+  kind: has_many
+  via: syncariId header
+- from: Instance
+  to: Pipeline
+  kind: has_many
+  via: syncariId header
+- from: Instance
+  to: User
+  kind: has_many
+  via: instance assignment on the user
+- from: Entity
+  to: Attribute
+  kind: has_many
+  via: /entities/{entityId}/fields
+- from: Entity
+  to: EntityData
+  kind: has_many
+  via: /entities/{entityId}/data
+- from: Pipeline
+  to: FieldPipeline
+  kind: has_many
+  via: /pipelines/{pipelineId}/fieldPipelines
+- from: Pipeline
+  to: Synapse
+  kind: belongs_to
+  via: source/destination node references synapseId
+- from: Pipeline
+  to: Entity
+  kind: belongs_to
+  via: the Syncari entity the pipeline syncs
+- from: Synapse
+  to: SynapseType
+  kind: belongs_to
+  via: synapseTypeId
+- from: Synapse
+  to: User
+  kind: belongs_to
+  via: createdBy / updatedBy
+- from: QuickStart
+  to: Pipeline
+  kind: has_many
+  via: install creates the pipelines in the template
+- from: QuickStart
+  to: Dataset
+  kind: has_many
+  via: install carries Basic and SQL datasets (June 2026)
+- from: Error
+  to: Synapse
+  kind: belongs_to
+  via: synapseId / synapseName
+- from: Error
+  to: EntityData
+  kind: belongs_to
+  via: syncariRecordId
+- from: Error
+  to: Entity
+  kind: belongs_to
+  via: syncariEntityName
+- from: FieldPipeline
+  to: Attribute
+  kind: belongs_to
+  via: the attribute being mapped
+- from: User
+  to: Role
+  kind: has_many
+  via: /users/{userId}/roles/{roleId}
+- from: Dataset
+  to: Attribute
+  kind: has_many
+  via: dataset columns are modelled as attributes in Schema Studio
+- from: EntityData
+  to: EntityData
+  kind: has_many
+  via: 'reference / child data-type attributes hold cross-entity references'
+sdk_record_model:
+  source: https://support.syncari.com/hc/en-us/articles/25947440030356-Models-Reference-Page
+  Record:
+    name: Entity name of the record
+    id: ID in the external system
+    syncariEntityId: ID in Syncari
+    deleted: boolean
+    values: field values dictionary
+    lastModified: epoch millis
+    createdAt: epoch millis
+  note: >-
+    The id / syncariEntityId pair IS the identity-resolution join - the external system's key on one side, the
+    Syncari golden-record key on the other. Create/Update/Delete return Result objects that establish this mapping.
+system_fields:
+  observed: [id, createdBy, createdAt, updatedBy, updatedAt, status]
+  data_plane: [syncari_updatedbyemail, syncariDefinedUpdatedAt]
+render: null
+render_note: No subway/ diagram exists in this repo yet.

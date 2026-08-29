@@ -1,0 +1,88 @@
+generated: '2026-08-29'
+method: probed
+source: https://support.syncari.com/hc/en-us/sections/37496143927444-MCP-Server-Overview
+name: Syncari MCP Server
+description: >-
+  Syncari publishes a first-party hosted remote MCP server that exposes a customer's unified Syncari data and
+  actions to MCP clients. Syncari documents setup for Anthropic Claude (web and desktop, Pro/Max/Team/Enterprise
+  plans, "Add custom connector") and OpenAI ChatGPT (Pro/Plus, Developer Mode connectors). Authorization is
+  OAuth 2.0; the endpoint answers 401 with an RFC 9728 resource_metadata challenge to anonymous callers.
+deployment:
+  mode: remote
+  endpoint: https://mcp.syncari.com/mcp
+  auth: oauth
+  verified: probed
+transport: streamable-http
+status: published
+x-evidence:
+  fetched: '2026-08-29'
+  probe:
+    method: POST
+    url: https://mcp.syncari.com/mcp
+    body: '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+    accept: application/json, text/event-stream
+    http_status: 401
+    content_type: application/json
+    body_returned: '{"error": "invalid_token", "error_description": "Authentication required"}'
+    www_authenticate: >-
+      Bearer error="invalid_token", error_description="Authentication required",
+      resource_metadata="https://mcp.syncari.com/.well-known/oauth-protected-resource"
+    server_header: uvicorn
+  conclusion: >-
+    The server is real and reachable, and it implements the MCP authorization spec correctly (RFC 9728 challenge
+    pointing at protected-resource metadata). The live tool schemas require an authenticated introspection with a
+    Syncari account, so no inputSchema could be captured on this pass.
+authorization:
+  discovery:
+  - url: https://mcp.syncari.com/.well-known/oauth-protected-resource
+    status: 200
+    file: well-known/syncari-mcp-oauth-protected-resource.json
+  - url: https://mcp.syncari.com/.well-known/oauth-authorization-server
+    status: 200
+    file: well-known/syncari-mcp-oauth-authorization-server.json
+  issuer: https://mcp.syncari.com
+  registration_endpoint: https://app.syncari.com/arcade/api/v1/oauth2/register
+  authorization_endpoint: https://app.syncari.com/arcade/api/v1/oauth2/authorize
+  token_endpoint: https://app.syncari.com/arcade/api/v1/oauth2/token
+  grant_types: [authorization_code, refresh_token]
+  pkce: [plain, S256]
+  dynamic_client_registration: true
+  scopes_supported: []
+  scopes_note: >-
+    scopes_supported is an empty array in the protected-resource metadata even though the Claude setup flow shows a
+    "Syncari MCP Authorization Request" consent screen listing requested permissions. Scope names are therefore not
+    machine-discoverable.
+tools:
+  status: gated
+  count: null
+  note: >-
+    NOT ENUMERATED. tools/list returns 401 to anonymous callers and Syncari publishes no tool manifest, so no tool
+    names or inputSchemas are recorded here. The capability areas below are quoted from Syncari's own documentation
+    and release notes and are NOT tool names.
+documented_capabilities:
+- capability: List datasets in the instance
+  source: https://support.syncari.com/hc/en-us/articles/49710843662996-Release-Notes-May-2026
+  quote: MCP server now lets you see all Syncari datasets you have in your instance and analyze your data with queries.
+- capability: Query and analyse unified data
+  source: https://support.syncari.com/hc/en-us/articles/37496875603220-MCP-Server-for-Claude
+  quote: Claude communicated with Syncari MCP to query my unified data in Syncari and render the charts.
+- capability: Trigger standard and custom Syncari actions
+  source: https://support.syncari.com/hc/en-us/articles/37496875603220-MCP-Server-for-Claude
+  quote: >-
+    With the Syncari MCP integration, you can now trigger standard and custom Syncari actions via clients like
+    Claude. Ask Claude on the available Syncari Actions.
+clients_documented:
+- client: Anthropic Claude (web and desktop)
+  requirement: Pro, Max, Team or Enterprise plan with Custom Connector support
+  docs: https://support.syncari.com/hc/en-us/articles/37496875603220-MCP-Server-for-Claude
+- client: OpenAI ChatGPT (web)
+  requirement: Pro or Plus plan, Developer Mode connectors; not usable for ChatGPT Search
+  docs: https://support.syncari.com/hc/en-us/articles/41515721105556-MCP-Server-for-ChatGPT
+prerequisites:
+- A Syncari instance with active pipelines and a Data Store
+crosswalk:
+  emitted: false
+  reason: >-
+    Step 3b requires an OpenAPI (or GraphQL) surface to bind tools to. Syncari publishes no machine-readable
+    contract for the Embed REST API and the MCP tool list is auth-gated, so there is nothing verifiable on either
+    side of the crosswalk. Mapping would be fabrication.

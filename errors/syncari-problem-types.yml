@@ -1,0 +1,104 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/articles/18713938378004-Error
+name: Syncari error surfaces
+description: >-
+  Syncari publishes NO HTTP error-code table and NO error-code registry for the Embed REST API - there is no status
+  table, no error catalogue page, and no application/problem+json anywhere in the API reference. What it does
+  publish is a data-plane error RESOURCE (sync and synapse errors you retrieve as records) and a set of retryable
+  status codes inside the Synapse SDK. Both are captured below. Nothing here is invented; where Syncari documents
+  nothing, this file says so.
+format: proprietary-envelope
+rfc9457: false
+problem_json_media_type: false
+transport_envelope:
+  shape: '{success, requestId, timestamp, cursorToken?, result}'
+  failure_indicator: success=false
+  note: >-
+    Syncari does not publish a failure example. The success field is documented as a boolean on every response and
+    is true in every published sample, so the false path is inferred from the field's existence and is marked as
+    such below.
+  confidence: low
+http_status_codes:
+  documented: false
+  note: >-
+    No status-code table exists in the API reference. The only status codes named anywhere in Syncari's developer
+    documentation are the retryable set in the Synapse SDK REST client.
+  retryable_set:
+    source: https://support.syncari.com/hc/en-us/articles/25946901985044-Syncari-Rest-Client
+    codes: [429, 500, 502, 503, 504]
+    behaviour: >-
+      "Automatic Retries: Implements a retry strategy for transient errors (HTTP status codes 429, 500, 502, 503,
+      and 504) with customizable retry counts and backoff strategies."
+    scope: >-
+      This is the client Syncari ships for calling EXTERNAL systems from a custom Synapse. It is evidence of what
+      Syncari treats as transient, not a statement about what api.syncari.com returns.
+  observed:
+  - code: 401
+    where: api.syncari.com edge
+    body: '{"error": "invalid_token", "error_description": "..."}'
+    method: probed
+    note: >-
+      Probed 2026-08-29. Every unauthenticated path on api.syncari.com, including /.well-known/*, returns a
+      167-byte 401 JSON body. This is the only error shape observed live, and it does NOT use the
+      success/requestId/timestamp envelope - the edge answers before the application does.
+  - code: 401
+    where: mcp.syncari.com/mcp
+    body: '{"error": "invalid_token", "error_description": "Authentication required"}'
+    headers:
+      www-authenticate: 'Bearer error="invalid_token", resource_metadata="https://mcp.syncari.com/.well-known/oauth-protected-resource"'
+    method: probed
+    note: OAuth 2.0 error shape (RFC 6750 / RFC 9728), correctly implemented.
+data_plane_error_resource:
+  description: >-
+    Syncari exposes operational errors as a queryable resource rather than as API failures. This is the closest
+    thing Syncari has to an error catalogue, and it is about data synchronisation, not about your HTTP call.
+  endpoint: GET /api/v1/errors
+  docs: https://support.syncari.com/hc/en-us/articles/18713938378004-Error
+  error_types:
+  - id: syncError
+    description: An error that occurred synchronising a record between Syncari and a connected system.
+    fields: [errorType, synapseId, synapseName, syncariEntityName, externalEntityName, syncariRecordId, operation, error, errorDetail, occurredAt]
+    paginated: true
+  - id: synapseError
+    description: >-
+      Connector-level error. Only errorType is accepted as a request parameter; a subset of fields is returned
+      (synapse plus error information) and all records come back without a cursor.
+    paginated: false
+  filters:
+    operation: [Create, Update, Delete, Disconnect, Merge]
+    other: [startTime, endTime, synapseName, syncariEntityName, syncariRecordId, cursorToken, limit]
+  example_error_text: 'HD MS 2: bad value for restricted picklist field: [football, rugby]'
+  example_note: >-
+    The error and errorDetail fields carry the DOWNSTREAM system's raw message verbatim (here, a Salesforce
+    picklist error). Syncari does not normalise external error text into its own taxonomy, so a consumer must
+    parse per-connector strings.
+  ui: https://support.syncari.com/hc/en-us/articles/20958078006292-Using-Sync-Errors
+sdk_error_model:
+  description: Error shapes a custom Synapse returns to the platform.
+  source: https://support.syncari.com/hc/en-us/articles/25947440030356-Models-Reference-Page
+  models:
+  - name: Result
+    fields:
+      success: 'bool, defaults true - whether the CRUD operation succeeded'
+      errors: 'Optional[List[str]] - error messages'
+      id: ID of the record in the external system
+      syncariId: ID of the record in Syncari
+    note: >-
+      "On the Result record we can also specify if the API request was successful or not, so the platform can
+      understand if it needs to retry (in cases of rate limits / 429 errors) and/or to signal the user that the
+      action wasn't successful."
+  - name: SyncariException / ErrorResponse
+    note: >-
+      SyncariRestClient wraps HTTP errors in a SyncariException carrying an ErrorResponse. The ErrorResponse field
+      list is not enumerated in the published Models Reference, so it is not reproduced here.
+problem_types: []
+problem_types_note: >-
+  Empty on purpose. There is no published problem-type registry to derive from and no OpenAPI 4xx/5xx responses to
+  read. Populating this list would be fabrication.
+gaps:
+- No HTTP status code table for the Embed API.
+- No error-code registry, no stable machine-readable error identifiers, no remediation guidance per error.
+- No documented failure-response example, so a client cannot be written defensively from the docs alone.
+- External system error text is passed through unnormalised.
+- No RFC 9457 application/problem+json.

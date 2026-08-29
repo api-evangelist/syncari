@@ -1,0 +1,195 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/sections/18707940523028-API-Reference
+name: Syncari Embed API conventions
+description: >-
+  Cross-cutting runtime semantics for the Syncari Embed REST API, read out of Syncari's own API reference articles
+  and request/response samples. Syncari is consistent - the same envelope, the same two custom headers and the same
+  cursor pagination appear on every documented resource - but several agent-critical semantics (idempotency,
+  rate-limit signalling, error taxonomy) are absent or explicitly deferred.
+base_url: https://api.syncari.com/api/v1
+transport: HTTPS only
+media_type: application/json
+auth_style:
+  scheme: OAuth 2.0 bearer token
+  header: 'Authorization: Bearer <access_token>'
+  token_ttl_seconds: 10800
+  detail: authentication/syncari-authentication.yml
+custom_headers:
+- name: syncariId
+  required: conditional
+  description: >-
+    Id of the Syncari instance the request runs against. Present on effectively every documented resource; this is
+    how a single Org Admin credential addresses one tenant out of many.
+- name: clientRequestId
+  required: false
+  description: Client-side request id.
+  provider_wording: 'Client side request id to be used for idempotency in the future'
+idempotency:
+  supported: false
+  status: reserved
+  header: clientRequestId
+  evidence: >-
+    The header is documented on all 15 API-reference resources, but Syncari's own parameter description says it is
+    "to be used for idempotency in the future". No retention window, no conflict/replay semantics, no 409 behaviour
+    and no idempotent-replay response are documented. Treated here as NOT SUPPORTED - an agent must not assume a
+    retried POST is safe.
+  recommendation: >-
+    Activating clientRequestId as a real idempotency key, with a stated retention window and a documented replay
+    response, is the single highest-value runtime-semantics change Syncari could make for agent callers.
+pagination:
+  style: opaque cursor
+  request_params:
+  - name: cursorToken
+    description: Value taken from the previous response to fetch the next page
+  - name: limit
+    type: integer
+    description: Maximum records to return
+  response_field: cursorToken
+  termination: cursorToken absent from the response when there are no further pages
+  exceptions:
+  - resource: Errors with errorType=synapseError
+    behaviour: All records are returned; no cursor is used.
+  evidence: https://support.syncari.com/hc/en-us/articles/18713938378004-Error
+filtering:
+  time_range:
+  - startTime
+  - endTime
+  - startDate
+  note: >-
+    Time-bounded list endpoints (transactions, transaction KPIs, errors) take ISO-8601 start/end parameters.
+    Get Entity Data gained sort and direction parameters in the June 2026 release.
+response_envelope:
+  shape:
+    success: boolean
+    requestId: string
+    timestamp: 'ISO-8601 UTC instant'
+    cursorToken: 'string, list responses only'
+    result: 'object or array - the payload'
+  example: |
+    {
+      "success": true,
+      "requestId": "1978486042",
+      "timestamp": "2023-01-23T20:20:10.314830Z",
+      "result": [ ... ]
+    }
+  note: >-
+    Every documented success response uses this envelope. The payload is always under result, never at the top
+    level, so a client cannot treat the body as the resource.
+request_id_tracing:
+  server_field: requestId
+  returned_on: every response
+  client_field: clientRequestId
+  correlation: >-
+    requestId is server-generated and echoed in the envelope. There is no documented statement that clientRequestId
+    is echoed back or usable for support correlation.
+error_semantics:
+  envelope: same success/requestId/timestamp/result envelope with success=false
+  problem_json: false
+  catalog: errors/syncari-problem-types.yml
+  note: >-
+    Syncari publishes no HTTP status table and no error-code registry for the Embed API. The only structured error
+    surface is the data-plane sync/synapse error resource.
+rate_limit_signalling:
+  headers: none documented
+  retry_after: not documented
+  status_on_exhaustion: 429 implied
+  detail: rate-limits/syncari-rate-limits.yml
+  note: >-
+    The Synapse SDK's SyncariRestClient retries 429, 500, 502, 503 and 504 with backoff, which shows Syncari
+    expects 429 from the systems it calls; nothing states what Syncari itself returns or when.
+versioning:
+  style: URI path (/api/v1)
+  detail: lifecycle/syncari-lifecycle.yml
+field_expansion:
+  supported: false
+  note: No sparse-fieldset, expand or include parameter is documented.
+metadata:
+  supported: partial
+  note: >-
+    Synapse and connection objects carry a metaConfig dictionary for arbitrary configured fields, and Attributes
+    carry additionalProperties. These are configuration extension points, not general request metadata.
+bulk_operations:
+  supported: true
+  examples:
+  - PATCH /api/v1/entities/{entityId}/fields/batch
+  - Import Data Model (JSON/CSV bulk schema import, June 2026)
+  - apiMaxCrudSize on a Synapse controls how many records are handed to create/update/delete per invocation (default 20)
+dry_run_mode:
+  supported: true
+  scope: pipeline and synapse authoring only
+  operations:
+  - POST /api/v1/pipelines/{pipelineId}/validate - validate a draft pipeline before publishing
+  - POST /api/v1/pipelines/{pipelineId}/test and GET .../testResult/{id} - test a pipeline and read the result
+  - POST /api/v1/synapses/{id}/test - verify synapse credentials before activation
+  - POST /api/v1/pipelines/{id}/fieldPipelines/{id}/validate
+  note: >-
+    Real rehearsal exists for the configuration plane. There is no dry-run for data-plane writes (entity data
+    create/update/delete).
+reversibility:
+  grade: documented
+  applies: true
+  read_only: false
+  summary: >-
+    Syncari's configuration plane is genuinely reversible - draft/publish, activate/deactivate and pause/resume are
+    documented paired operations - but NO reversal WINDOW is stated anywhere for any of them, and the data plane
+    (deleting a Syncari record, deleting an entity) has no documented undo at all. Graded `documented`, not
+    `verified`, because a window is required for verified and Syncari publishes none.
+  surfaces:
+  - write_surface: Publish a pipeline
+    operation: POST /api/v1/pipelines/{pipelineId}/publish
+    reversal: POST /api/v1/pipelines/{pipelineId}/createDraft
+    reversal_kind: re-draft
+    window: not stated
+    docs: https://support.syncari.com/hc/en-us/articles/18713807179924-Entity-Pipeline
+  - write_surface: Run a live pipeline
+    operation: publish
+    reversal: POST /api/v1/pipelines/{id}/pause
+    resume: POST /api/v1/pipelines/{id}/resume
+    reversal_kind: pause
+    window: not stated
+    note: Pause stops further syncing; it does not roll back data already written to destination systems.
+  - write_surface: Activate a synapse
+    operation: POST /api/v1/synapses/{id}/activate
+    reversal: POST /api/v1/synapses/{id}/deactivate
+    reversal_kind: deactivate
+    window: not stated
+  - write_surface: Publish a Syncari entity
+    operation: POST /api/v1/entities/{entityId}/publish
+    reversal: POST /api/v1/entities/{entityId}/createDraft
+    reversal_kind: re-draft
+    window: not stated
+  - write_surface: Activate a user
+    operation: POST /api/v1/users/{id}/activate
+    reversal: POST /api/v1/users/{id}/deactivate
+    reversal_kind: deactivate
+    window: not stated
+    added: '2026-06'
+  - write_surface: Install a Quick Start
+    operation: POST /api/v1/quickstart/{id}/install
+    reversal: none documented
+    window: not stated
+    note: >-
+      A Quick Start install creates many pipelines at once. No uninstall or rollback endpoint is documented; the
+      June 2026 notes describe an overwrite/reuse prompt for conflicting datasets but no undo.
+  - write_surface: Delete a record or entity (data plane)
+    operation: DELETE endpoints on entities and entity data
+    reversal: none documented
+    window: not stated
+    note: >-
+      A known issue in the June 2026 release notes reads "Deleted record remains in data store", which underlines
+      that delete semantics are not formally specified.
+  unreversible:
+  - Data written by a published pipeline into a destination system (Salesforce, HubSpot, a warehouse) is written by
+    that system's own API; Syncari documents no compensating operation.
+  - API user credentials, once created, cannot be rotated - only the user can be deleted and recreated.
+  agent_guidance: >-
+    An agent operating Syncari should confine itself to the configuration plane's draft/validate/test cycle before
+    any publish, and must treat publish, Quick Start install and any data-plane delete as one-way until Syncari
+    publishes reversal windows.
+cross_references:
+  authentication: authentication/syncari-authentication.yml
+  errors: errors/syncari-problem-types.yml
+  lifecycle: lifecycle/syncari-lifecycle.yml
+  rate_limits: rate-limits/syncari-rate-limits.yml
+  data_model: data-model/syncari-data-model.yml

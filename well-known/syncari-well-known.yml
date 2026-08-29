@@ -1,0 +1,128 @@
+generated: '2026-08-29'
+method: probed
+source: direct HTTPS probes of /.well-known/* on every Syncari host named in apis.yml
+name: Syncari well-known documents
+description: >-
+  Probe of the RFC 8615 /.well-known/ namespace on every Syncari host. Two real documents were served, both on the
+  MCP host: the OAuth 2.0 authorization server metadata (RFC 8414) and the OAuth 2.0 protected resource metadata
+  (RFC 9728) that the MCP 401 challenge points at. No security.txt, api-catalog, openid-configuration, ai-plugin
+  or A2A agent card is served anywhere. app.syncari.com answers 200 with the same 6,282-byte SPA HTML shell for
+  every path probed, including paths that cannot exist - those are recorded as misses, not documents.
+checked: '2026-08-29'
+hosts:
+- host: mcp.syncari.com
+  note: Hosted remote MCP server. Serves real OAuth metadata anonymously.
+  documents:
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    content_type: application/json
+    file: well-known/syncari-mcp-oauth-authorization-server.json
+  - path: /.well-known/oauth-protected-resource
+    status: 200
+    content_type: application/json
+    file: well-known/syncari-mcp-oauth-protected-resource.json
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+- host: api.syncari.com
+  note: >-
+    Production API host. The edge returns 401 application/json ({"error":"invalid_token"} shape, 167 bytes) for
+    every path including unauthenticated well-known paths, so no well-known document is publicly reachable.
+  documents:
+  - path: /.well-known/security.txt
+    status: 401
+  - path: /.well-known/openid-configuration
+    status: 401
+  - path: /.well-known/oauth-authorization-server
+    status: 401
+  - path: /.well-known/api-catalog
+    status: 401
+  - path: /.well-known/ai-plugin.json
+    status: 401
+  - path: /.well-known/agent-card.json
+    status: 401
+  - path: /.well-known/agent.json
+    status: 401
+- host: www.syncari.com
+  note: WordPress marketing site. 404s everywhere except /llms.txt, which is a real Yoast-generated document.
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  - path: /llms.txt
+    status: 200
+    content_type: text/plain
+    file: llms/syncari-llms.txt
+- host: app.syncari.com
+  note: >-
+    Single-page application. Returns HTTP 200 with an identical 6,282-byte HTML shell for EVERY path probed,
+    including /.well-known/agent-card.json. These are SPA catch-alls, not documents - recorded as misses.
+  documents:
+  - path: /.well-known/security.txt
+    status: 200
+    served: html-spa-shell
+    document: false
+  - path: /.well-known/openid-configuration
+    status: 200
+    served: html-spa-shell
+    document: false
+  - path: /.well-known/oauth-authorization-server
+    status: 200
+    served: html-spa-shell
+    document: false
+  - path: /.well-known/api-catalog
+    status: 200
+    served: html-spa-shell
+    document: false
+  - path: /.well-known/ai-plugin.json
+    status: 200
+    served: html-spa-shell
+    document: false
+  - path: /.well-known/agent-card.json
+    status: 200
+    served: html-spa-shell
+    document: false
+  - path: /.well-known/agent.json
+    status: 200
+    served: html-spa-shell
+    document: false
+- host: support.syncari.com
+  note: Zendesk Guide help centre. 404s on every well-known path.
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+summary:
+  hosts_probed: 5
+  documents_served: 2
+  security_txt: false
+  api_catalog: false
+  agent_card: false
+  ai_plugin: false

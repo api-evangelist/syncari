@@ -1,0 +1,47 @@
+generated: '2026-08-29'
+method: probed
+source: https://mcp.syncari.com/.well-known/oauth-protected-resource
+name: Syncari OAuth scopes
+description: >-
+  Syncari operates two OAuth 2.0 surfaces but publishes no scope vocabulary for either. This artifact records that
+  measured absence rather than inventing one. The MCP protected-resource metadata is served anonymously and its
+  scopes_supported array is empty; the Embed REST API documents the client-credentials flow with no scope parameter
+  at all, and authorises instead by the role and instance assigned to the API user.
+docs:
+- https://support.syncari.com/hc/en-us/articles/18707594686100-Authenticating-with-Syncari-Embed-APIs
+- https://support.syncari.com/hc/en-us/articles/4417399957908-Set-Up-an-API-User
+scope_count: 0
+scopes: []
+evidence:
+- surface: Syncari MCP Server
+  url: https://mcp.syncari.com/.well-known/oauth-protected-resource
+  http_status: 200
+  finding: '"scopes_supported": [] - served, empty, on 2026-08-29.'
+- surface: Syncari MCP Server
+  url: https://mcp.syncari.com/.well-known/oauth-authorization-server
+  http_status: 200
+  finding: >-
+    RFC 8414 metadata declares grant_types authorization_code and refresh_token with PKCE S256 and dynamic client
+    registration, but carries no scopes_supported key.
+- surface: Syncari Embed API
+  url: https://support.syncari.com/hc/en-us/articles/18707594686100-Authenticating-with-Syncari-Embed-APIs
+  http_status: 200
+  finding: >-
+    The documented token request is grant_type=client_credentials with client_id and client_secret only. No scope
+    parameter is documented and no scope appears in the sample token response.
+authorization_instead_of_scopes:
+  model: role plus instance assignment on the API user
+  roles: [Org Admin, Instance Admin]
+  custom_roles_api: https://support.syncari.com/hc/en-us/articles/50465652460820-Role
+  note: >-
+    Access is decided when the API user is created in Settings > Users, not per token. The Role API (June 2026)
+    lets an Org Admin manage custom roles and assign them to users programmatically, which is the closest thing
+    Syncari has to a machine-readable permission surface.
+consent_surface_exists: true
+consent_evidence: >-
+  Syncari's Claude connector walkthrough shows a "Syncari MCP Authorization Request screen ... listing the
+  permissions being requested" before the user clicks Accept, so permissions are named to the human but not
+  published to machines.
+gap: >-
+  A published scopes_supported list on the MCP protected-resource metadata, and a documented scope reference page,
+  would let an agent reason about least privilege before it connects. Today it cannot.

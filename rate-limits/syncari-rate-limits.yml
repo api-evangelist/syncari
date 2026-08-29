@@ -1,0 +1,56 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/articles/38548467297940-Syncari-Service-Health-Check
+name: Syncari rate limits
+description: >-
+  Syncari publishes exactly one numeric call-frequency limit anywhere in its documentation - a minimum ping
+  interval on the three public health endpoints. No rate limit is documented for the Syncari Embed API or the MCP
+  server, and no rate-limit response header is documented anywhere: a search of all 425 help-centre articles found
+  zero occurrences of X-RateLimit, RateLimit- or Retry-After.
+limit_count: 1
+checked: '2026-08-29'
+limits:
+- id: health-endpoint-ping-interval
+  scope: per-endpoint
+  applies_to:
+  - https://app.syncari.com/arcade/health
+  - https://api.syncari.com/health
+  - https://api.syncari.com/health/sync
+  window: 30 minutes
+  limit: 1
+  unit: request
+  wording: 'NOTE : The ping interval must be atleast 30 minutes for each of these endpoints.'
+  enforcement: not stated (documented as an instruction to integrators, not an observed 429)
+  source: https://support.syncari.com/hc/en-us/articles/38548467297940-Syncari-Service-Health-Check
+headers:
+  documented: false
+  x_ratelimit: not documented
+  ratelimit_draft: not documented
+  retry_after: not documented
+  evidence: >-
+    Zero matches for "X-RateLimit", "RateLimit" or "Retry-After" across all 425 published help-centre articles
+    (searched 2026-08-29 via the Zendesk Help Center API).
+status_on_exhaustion:
+  code: 429
+  documented: false
+  note: >-
+    429 is never stated as something api.syncari.com returns. It appears twice in Syncari's docs, both times about
+    the systems Syncari CALLS: the Synapse SDK REST client retries 429/500/502/503/504 with backoff, and the CRUD
+    Methods guide says a Result can signal failure "so the platform can understand if it needs to retry (in cases
+    of rate limits / 429 errors)".
+platform_side_throttling:
+  apiMaxCrudSize:
+    description: >-
+      A Synapse declares apiMaxCrudSize - the maximum number of records handed to its create, update and delete
+      methods per invocation. Defaults to 20 when unset.
+    source: https://support.syncari.com/hc/en-us/articles/25947440030356-Models-Reference-Page
+    note: This throttles Syncari's calls OUT to a connected system; it is not an inbound limit on Syncari's own API.
+  connector_limits: >-
+    Many Synapse setup articles discuss the SOURCE system's rate limits (Salesforce, HubSpot, Pendo, SAP, Eloqua,
+    Pipedrive, Zoho and others). Those are third-party limits, not Syncari limits.
+mcp:
+  limits_documented: false
+  note: No rate limit, concurrency cap or token budget is published for https://mcp.syncari.com/mcp.
+gap: >-
+  An agent cannot pace itself against the Syncari API. There is no documented quota, no response header carrying
+  remaining budget, and no documented Retry-After - the only safe strategy is exponential backoff on any 429.

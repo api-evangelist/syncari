@@ -1,23 +1,189 @@
 aid: syncari
 name: Syncari
-description: 'Syncari is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Syncari is an agentic master data management (MDM) and data unification platform that syncs, cleans, governs and
+  activates business data across CRM, marketing, finance, support and warehouse systems from a single unified data
+  model. Its multidirectional stateful sync engine connects 50+ prebuilt "Synapse" connectors plus a Python custom
+  connector SDK, and orchestrates data through no-code entity and field pipelines, schema studio, merge/dedupe,
+  reference datasets and insights. Syncari exposes two public developer surfaces: the Syncari Embed REST API
+  (https://api.syncari.com/api/v1) for programmatically provisioning instances, synapses, pipelines, entities,
+  datasets, users and roles inside an embedding product, and a hosted remote MCP server at https://mcp.syncari.com/mcp
+  that lets Claude and ChatGPT query a customer's unified data and trigger Syncari actions over OAuth.
+image: https://syncari.com/wp-content/themes/syncaroo/img/syncari.svg
 url: https://raw.githubusercontent.com/api-evangelist/syncari/refs/heads/main/apis.yml
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment-pipeline
 specificationVersion: '0.20'
 created: '2026-08-29'
 modified: '2026-08-29'
 tags:
 - Company
-apis: []
+- Master Data Management
+- Data Unification
+- Data Integration
+- iPaaS
+- Data Quality
+- Data Governance
+- Embedded Integration
+- MCP
+- agent-native
+- RevOps
+- Data Synchronization
+tags_raw:
+- company
+- master-data-management
+- data-unification
+- data-integration
+- ipaas
+- data-quality
+- data-governance
+- embedded-integration
+- mcp
+- agent-native
+- revops
+- data-synchronization
+apis:
+- name: Syncari Embed API
+  description: >-
+    REST API for embedding and automating Syncari. Covers instance provisioning, synapse create/test/activate,
+    entity and field pipeline authoring, validation and publishing, Quick Start install, schema (entity/attribute)
+    management, entity data read/write, reference datasets, datasets, transactions and KPIs, jobs, sync/synapse
+    errors, insights, users and roles. OAuth 2.0 client-credentials bearer tokens; JSON envelope responses with
+    cursor pagination.
+  humanURL: https://support.syncari.com/hc/en-us/sections/4417407653012-Get-Started-Syncari-API
+  baseURL: https://api.syncari.com/api/v1
+  tags:
+  - Master Data Management
+  - Data Integration
+  - Embedded Integration
+  - Data Synchronization
+  - REST
+  tags_raw:
+  - master-data-management
+  - data-integration
+  - embedded-integration
+  - data-synchronization
+  - rest
+  properties:
+  - type: Documentation
+    url: https://support.syncari.com/hc/en-us/sections/4417407653012-Get-Started-Syncari-API
+  - type: APIReference
+    url: https://support.syncari.com/hc/en-us/sections/18707940523028-API-Reference
+  - type: GettingStarted
+    url: https://support.syncari.com/hc/en-us/articles/18707752819476-Sending-Your-First-Syncari-Embed-Request
+  - type: Authentication
+    url: authentication/syncari-authentication.yml
+  - type: Conventions
+    url: conventions/syncari-conventions.yml
+  - type: ErrorCatalog
+    url: errors/syncari-problem-types.yml
+  - type: DataModel
+    url: data-model/syncari-data-model.yml
+  - type: RateLimits
+    url: rate-limits/syncari-rate-limits.yml
+- name: Syncari MCP Server
+  description: >-
+    Hosted remote MCP server that connects Claude (web and desktop) and ChatGPT to a customer's unified Syncari data.
+    Documented capabilities include listing the datasets in an instance, running analytical queries against unified
+    data, and triggering standard and custom Syncari actions. Authorization is OAuth 2.0 authorization-code with
+    PKCE and dynamic client registration; tools/list is auth-gated.
+  humanURL: https://support.syncari.com/hc/en-us/sections/37496143927444-MCP-Server-Overview
+  baseURL: https://mcp.syncari.com/mcp
+  tags:
+  - MCP
+  - agent-native
+  - Master Data Management
+  - Data Unification
+  tags_raw:
+  - mcp
+  - agent-native
+  - master-data-management
+  - data-unification
+  properties:
+  - type: MCPServer
+    url: mcp/syncari-mcp.yml
+  - type: MCPServer
+    url: https://mcp.syncari.com/mcp
+  - type: Documentation
+    url: https://support.syncari.com/hc/en-us/articles/41515826465812-MCP-Server-Overview
+  - type: OAuthScopes
+    url: scopes/syncari-scopes.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: DomainSecurity
+  url: security/syncari-domain-security.yml
 - type: Website
-  url: https://www.nasdaqprivatemarket.com/
+  url: https://syncari.com/
+- type: Documentation
+  url: https://support.syncari.com/hc/en-us/sections/4417407653012-Get-Started-Syncari-API
+- type: APIReference
+  url: https://support.syncari.com/hc/en-us/sections/18707940523028-API-Reference
+- type: GettingStarted
+  url: https://support.syncari.com/hc/en-us/articles/18707752819476-Sending-Your-First-Syncari-Embed-Request
+- type: Support
+  url: https://support.syncari.com/
+- type: Blog
+  url: https://syncari.com/blog/
+- type: Pricing
+  url: https://syncari.com/pricing/
+- type: SignUp
+  url: https://syncari.com/trial/
+- type: Login
+  url: https://app.syncari.com/login
+- type: TermsOfService
+  url: https://syncari.com/terms-and-conditions/
+- type: PrivacyPolicy
+  url: https://syncari.com/privacy-policy/
+- type: StatusPage
+  url: https://status.syncari.com/
+- type: ChangeLog
+  url: https://support.syncari.com/hc/en-us/sections/46253295331092-2026-Release-Notes
+- type: Compliance
+  url: https://syncari.com/security-overview/
+- type: TrustCenter
+  url: https://syncari.com/product/security/
+- type: TrustCenter
+  url: security/syncari-trust-center.yml
+- type: SDKs
+  url: packages/syncari-packages.yml
+- type: Packages
+  url: packages/syncari-packages.yml
+- type: MCPServer
+  url: mcp/syncari-mcp.yml
+- type: LLMsTxt
+  url: llms/syncari-llms.txt
+- type: WellKnown
+  url: well-known/syncari-well-known.yml
+- type: Authentication
+  url: authentication/syncari-authentication.yml
+- type: OAuthScopes
+  url: scopes/syncari-scopes.yml
+- type: Conventions
+  url: conventions/syncari-conventions.yml
+- type: Lifecycle
+  url: lifecycle/syncari-lifecycle.yml
+- type: Conformance
+  url: conformance/syncari-conformance.yml
+- type: ErrorCatalog
+  url: errors/syncari-problem-types.yml
+- type: DataModel
+  url: data-model/syncari-data-model.yml
+- type: ChangeLog
+  url: changelog/syncari-changelog.yml
+- type: Plans
+  url: plans/syncari-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/syncari-rate-limits.yml
+- type: Webhooks
+  url: asyncapi/syncari-notifications-webhooks.yml
+x-enrichment:
+  date: '2026-08-29'
+  status: enriched
+  artifacts_added: 19
+  pass: local-v1

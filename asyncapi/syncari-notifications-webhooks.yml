@@ -1,0 +1,84 @@
+generated: '2026-08-29'
+method: searched
+source: https://support.syncari.com/hc/en-us/articles/13809342602772-Webhook-Notifications
+name: Syncari event and webhook surface
+description: >-
+  Syncari has a real bidirectional event surface but publishes no AsyncAPI document and no webhook payload schema.
+  Outbound, it sends error notifications to a customer-configured HTTP endpoint. Inbound, the Webhook Receiver
+  Synapse and the SDK's webhook methods let external systems push events INTO Syncari. Both are captured here;
+  nothing is invented.
+asyncapi_document:
+  published: false
+  probed:
+  - url: https://api.syncari.com/asyncapi.yaml
+    status: 401
+  - url: https://www.syncari.com/asyncapi.yaml
+    status: 404
+    note: 301 to https://syncari.com/asyncapi.yaml, which returns 404.
+  note: No AsyncAPI, CloudEvents mapping, or event catalogue is published.
+outbound_webhooks:
+  supported: true
+  name: Webhook Notifications
+  docs: https://support.syncari.com/hc/en-us/articles/13809342602772-Webhook-Notifications
+  configured_in: Settings > Notifications > Webhook (UI only - no API for managing webhook subscriptions is documented)
+  purpose: >-
+    "Webhook error notifications let you send messages to other computer systems when an error occurs in Syncari."
+  delivery:
+    methods: [POST, PUT, PATCH]
+    default: POST
+    target: customer-supplied URL
+    custom_headers: >-
+      "Optionally expand Header/Body to add one or more Header messages to authenticate your webhook or send
+      additional information to the system receiving your message."
+    body_editable: false
+    body_note: 'Syncari states plainly: "You cannot edit the message body at this time."'
+  event_types:
+  - id: Pipeline
+    description: Pipeline error notifications
+  - id: Synapse
+    description: Synapse (connector) error notifications
+  - id: Sync
+    description: Sync error notifications
+  schedules:
+  - id: real-time
+    description: The configured URL receives a message as soon as an error occurs.
+  - id: digest
+    description: Syncari sends a digest of error notifications at the selected interval.
+  status_states: [Active, Inactive]
+  payload_schema:
+    published: false
+    note: >-
+      No payload example, field list or schema is published for the outbound notification body, and the body
+      cannot be customised. A consumer must observe a live delivery to learn its shape.
+  security:
+    signing: not documented
+    replay_protection: not documented
+    retry_policy: not documented
+    note: Authentication is whatever static headers the customer configures; there is no HMAC signature scheme.
+inbound_webhooks:
+  supported: true
+  surfaces:
+  - name: Webhook Receiver Synapse
+    docs: https://support.syncari.com/hc/en-us/articles/31951324289172-Webhook-Receiver-Synapse
+    description: >-
+      A Synapse that exposes an endpoint for an external system to POST events into Syncari, where they land as
+      records against a Syncari entity.
+    section: https://support.syncari.com/hc/en-us/sections/32167559129364-Webhook-Synapse
+  - name: SDK webhook methods
+    docs: https://support.syncari.com/hc/en-us/articles/25946842896148-Webhook-Methods
+    description: >-
+      Custom Synapses built with syncari-sdk implement webhook methods so the connector can receive and translate
+      a source system's webhook into Syncari Records.
+  - name: HTTP and Webhook Synapse sharing
+    docs: https://support.syncari.com/hc/en-us/articles/33836551111316-HTTP-and-Webhook-Synapse-sharing
+other_notification_channels:
+  section: https://support.syncari.com/hc/en-us/sections/13808462000788-Notifications
+  note: Email and in-app notifications are documented alongside webhooks in the same Notifications section.
+gaps:
+- No AsyncAPI or event-schema document of any kind.
+- No published payload schema for the outbound notification, and the body is not editable.
+- No signature, timestamp or replay defence on outbound deliveries.
+- No API for creating or listing webhook subscriptions - configuration is UI-only, which blocks programmatic
+  provisioning of an embedded tenant's notifications.
+- Events are limited to ERRORS. There is no data-change event (record created/updated/merged), which is the event
+  an agent watching an MDM system would most want.
