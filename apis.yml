@@ -19,18 +19,18 @@ specificationVersion: '0.20'
 created: '2026-08-29'
 modified: '2026-08-29'
 tags:
-- company
-- master-data-management
+- Company
+- Master Data Management
 - data-unification
-- data-integration
-- ipaas
-- data-quality
-- data-governance
+- Data Integration
+- iPaaS
+- Data Quality
+- Data Governance
 - embedded-integration
 - MCP
 - agent-native
-- revops
-- data-synchronization
+- Revenue Operations
+- Data Synchronization
 tags_raw:
 - company
 - master-data-management
@@ -55,11 +55,11 @@ apis:
   humanURL: https://support.syncari.com/hc/en-us/sections/4417407653012-Get-Started-Syncari-API
   baseURL: https://api.syncari.com/api/v1
   tags:
-  - master-data-management
-  - data-integration
+  - Master Data Management
+  - Data Integration
   - embedded-integration
-  - data-synchronization
-  - rest
+  - Data Synchronization
+  - REST
   tags_raw:
   - master-data-management
   - data-integration
@@ -94,7 +94,7 @@ apis:
   tags:
   - MCP
   - agent-native
-  - master-data-management
+  - Master Data Management
   - data-unification
   tags_raw:
   - mcp
