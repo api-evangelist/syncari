@@ -9,6 +9,22 @@ description: >-
   (https://api.syncari.com/api/v1) for programmatically provisioning instances, synapses, pipelines, entities,
   datasets, users and roles inside an embedding product, and a hosted remote MCP server at https://mcp.syncari.com/mcp
   that lets Claude and ChatGPT query a customer's unified data and trigger Syncari actions over OAuth.
+accessModel:
+  pricing: unknown
+  onboarding: approval
+  trial: false
+  try_now: false
+  public: false
+  label: Requires approval
+  confidence: medium
+  source:
+  - plans
+  - authentication
+  - scopes
+  - rate-limits
+  - security
+  generated: '2026-09-03'
+  method: derived
 image: https://syncari.com/wp-content/themes/syncaroo/img/syncari.svg
 url: https://raw.githubusercontent.com/api-evangelist/syncari/refs/heads/main/apis.yml
 x-type: company
