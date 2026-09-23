@@ -1,13 +1,13 @@
-generated: '2026-08-29'
+generated: '2026-09-19'
 method: probed
 source: direct HTTPS probes of /.well-known/* on every Syncari host named in apis.yml
 name: Syncari well-known documents
-description: >-
-  Probe of the RFC 8615 /.well-known/ namespace on every Syncari host. Two real documents were served, both on the
-  MCP host: the OAuth 2.0 authorization server metadata (RFC 8414) and the OAuth 2.0 protected resource metadata
-  (RFC 9728) that the MCP 401 challenge points at. No security.txt, api-catalog, openid-configuration, ai-plugin
-  or A2A agent card is served anywhere. app.syncari.com answers 200 with the same 6,282-byte SPA HTML shell for
-  every path probed, including paths that cannot exist - those are recorded as misses, not documents.
+description: 'Probe of the RFC 8615 /.well-known/ namespace on every Syncari host. Two real documents
+  were served, both on the MCP host: the OAuth 2.0 authorization server metadata (RFC 8414) and the OAuth
+  2.0 protected resource metadata (RFC 9728) that the MCP 401 challenge points at. No security.txt, api-catalog,
+  openid-configuration, ai-plugin or A2A agent card is served anywhere. app.syncari.com answers 200 with
+  the same 6,282-byte SPA HTML shell for every path probed, including paths that cannot exist - those
+  are recorded as misses, not documents.'
 checked: '2026-08-29'
 hosts:
 - host: mcp.syncari.com
@@ -16,11 +16,11 @@ hosts:
   - path: /.well-known/oauth-authorization-server
     status: 200
     content_type: application/json
-    file: well-known/syncari-mcp-oauth-authorization-server.json
+    file: syncari-mcp-oauth-authorization-server.json
   - path: /.well-known/oauth-protected-resource
     status: 200
     content_type: application/json
-    file: well-known/syncari-mcp-oauth-protected-resource.json
+    file: syncari-mcp-oauth-protected-resource.json
   - path: /.well-known/openid-configuration
     status: 404
   - path: /.well-known/security.txt
@@ -31,10 +31,11 @@ hosts:
     status: 404
   - path: /.well-known/agent.json
     status: 404
+  path_echo_control: passed
 - host: api.syncari.com
-  note: >-
-    Production API host. The edge returns 401 application/json ({"error":"invalid_token"} shape, 167 bytes) for
-    every path including unauthenticated well-known paths, so no well-known document is publicly reachable.
+  note: Production API host. The edge returns 401 application/json ({"error":"invalid_token"} shape, 167
+    bytes) for every path including unauthenticated well-known paths, so no well-known document is publicly
+    reachable.
   documents:
   - path: /.well-known/security.txt
     status: 401
@@ -72,9 +73,9 @@ hosts:
     content_type: text/plain
     file: llms/syncari-llms.txt
 - host: app.syncari.com
-  note: >-
-    Single-page application. Returns HTTP 200 with an identical 6,282-byte HTML shell for EVERY path probed,
-    including /.well-known/agent-card.json. These are SPA catch-alls, not documents - recorded as misses.
+  note: Single-page application. Returns HTTP 200 with an identical 6,282-byte HTML shell for EVERY path
+    probed, including /.well-known/agent-card.json. These are SPA catch-alls, not documents - recorded
+    as misses.
   documents:
   - path: /.well-known/security.txt
     status: 200
@@ -126,3 +127,19 @@ summary:
   api_catalog: false
   agent_card: false
   ai_plugin: false
+x-mcp-probe:
+  probed: '2026-09-19'
+  issue: roadmap#321, roadmap#337
+  documents:
+  - host: https://mcp.syncari.com
+    path: /.well-known/oauth-protected-resource
+    file: syncari-mcp-oauth-protected-resource.json
+  - host: https://mcp.syncari.com
+    path: /.well-known/oauth-authorization-server
+    file: syncari-mcp-oauth-authorization-server.json
+  validated_on: resource (RFC 9728) / issuer (RFC 8414, OIDC)
+  negative_control: one per host; a 2xx JSON object at an impossible path discards the host
+note: 'MCP-host OAuth discovery added 2026-09-19 (roadmap#321/#337): the harvest visits a provider''s
+  primary hosts, and RFC 9728 protected-resource metadata lives on the MCP host, so these documents existed
+  and were invisible to the scorer. Fetched live and validated on `resource`/`issuer`; one negative control
+  per host.'
