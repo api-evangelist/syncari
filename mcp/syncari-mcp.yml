@@ -89,3 +89,17 @@ crosswalk:
   reason: Step 3b requires an OpenAPI (or GraphQL) surface to bind tools to. Syncari publishes no machine-readable
     contract for the Embed REST API and the MCP tool list is auth-gated, so there is nothing verifiable
     on either side of the crosswalk. Mapping would be fabrication.
+rfc9728:
+  endpoint: https://mcp.syncari.com/mcp
+  metadata_url: https://mcp.syncari.com/.well-known/oauth-protected-resource
+  discovered_via: WWW-Authenticate resource_metadata on an anonymous POST initialize
+  fetched: '2026-09-25'
+  http_status: 200
+  content_type: application/json
+  document:
+    resource: https://mcp.syncari.com/
+    authorization_servers:
+    - https://mcp.syncari.com/
+    scopes_supported: []
+    bearer_methods_supported:
+    - header
