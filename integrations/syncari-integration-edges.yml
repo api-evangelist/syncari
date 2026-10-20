@@ -1,4 +1,38 @@
+generated: '2026-10-20'
+method: searched
+source:
+- slack/integrations/slack-integration-edges.yml
+- https://zapier.com/apps/syncari/integrations
+- https://n8n.io/integrations/syncari/
+- https://composio.dev/toolkits/syncari
+- https://monid.ai/tools/syncari
+checked:
+- chargebee/integrations/chargebee-integration-edges.yml
+- slack/integrations/slack-integration-edges.yml
+- https://composio.dev/toolkits/syncari
+- https://monid.ai/tools/syncari
+- https://n8n.io/integrations/syncari/
+- https://zapier.com/apps/syncari/integrations
+summary: null
+marketplace_apps: []
 edges:
+- partner_name: Chargebee (own)
+  partner: chargebee
+  partner_match: mirror
+  mirror_match: domain
+  type: marketplace
+  relationship: platform-app
+  direction: third-party
+  channel: partner-built
+  marketplace: own
+  evidence: https://marketplace.chargebee.com/apps/['syncari']
+  mirror_of: chargebee/integrations/chargebee-integration-edges.yml
+  apps:
+  - Syncari
+  listing_count: 1
+  detected: '2026-10-19'
+  detected_by: mirror-platform-listings.py
+  category: Integration platform
 - partner_name: Slack (own)
   partner: slack
   partner_match: mirror
@@ -16,9 +50,4 @@ edges:
   detected: '2026-10-18'
   detected_by: mirror-platform-listings.py
   category: Slack app
-generated: '2026-10-18'
-method: searched
-source:
-- slack/integrations/slack-integration-edges.yml
-checked:
-- slack/integrations/slack-integration-edges.yml
+templates: []
